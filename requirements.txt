@@ -23,3 +23,6 @@ pydantic_core==2.16.3
 python-dotenv==1.0.1
 starlette==0.36.3
 Werkzeug==3.0.1
+google-cloud-bigquery
+db-dtypes
+google-cloud-storage

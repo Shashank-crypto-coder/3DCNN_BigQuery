@@ -41,10 +41,11 @@
         .form-group {
             margin-bottom: 20px;
         }
-
+        
         label {
             display: block;
             margin-bottom: 5px;
+            font-weight: bold;
         }
 
         #imagePreview {
@@ -52,7 +53,7 @@
             max-height: 30%;
             overflow: hidden;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 10px;
             margin-bottom: 10px;
         }
 
@@ -61,6 +62,42 @@
             height: auto;
         }
 
+        #formContainer {
+        max-width: 400px;
+        margin: 80px auto 0;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+
+    }
+    .input-type{
+        width: 90%;
+        height: 36px;
+        border-radius: 5px;
+        padding-left: 10px;
+        outline: none;
+        border: 1px solid #ddd;
+        color: black;
+        font-size: 14px;
+    }
+    .input-file{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        
+    }
+    .input-text{
+        align-self: start;
+        margin-bottom: 20px;
+
+    }
+    .button-container{
+        text-align: center;
+        margin-top: 20px;
+    }
+   
         button {
             background-color: #4caf50;
             color: white;
@@ -76,6 +113,7 @@
 
         #imageContainer {
             margin: 20px;
+            text-align: center;
         }
     </style>
 </head>
@@ -93,11 +131,30 @@
 
     <form id="formContainer" action="/upload" method="POST" enctype="multipart/form-data">
         <div class="form-group">
-            <label for="ctscan">Upload CT Scan (Drag and drop here)</label>
-            <input type="file" class="form-control-file" id="xray" name="scan" >
+            <label for="name">Patient Name</label>
+            <input type="text" class="input-type" id="name" name="name" placeholder="Enter Name">
         </div>
-        <button type="submit" class="btn btn-primary" onclick="submitForm()">Submit</button>
+        <div class="form-group">
+            <label for="age">Age</label>
+            <input type="number" class="input-type" id="age" name="age" placeholder="Enter Age">
+        </div>
+        <div class="form-group">
+            <label for="gender">Gender</label>
+            <select class="input-type" id="gender" name="gender">
+                <option  value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div class="form-group input-file">
+            <label for="ctscan" class="input-text">Upload CT Scan (Drag and drop here)</label>
+            <input type="file" class="form-control-file " id="xray" name="scan">
+        </div>
+        <div class="button-container">
+            <button type="submit" class="btn btn-primary" onclick="submitForm()">Submit</button>
+        </div>
     </form>
+
 
     <div id="imageContainer">
         {% if message %}

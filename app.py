@@ -11,6 +11,9 @@ import psycopg2
 from fastapi.responses import RedirectResponse
 from dotenv import load_dotenv
 from model import test_pnemonia
+from google.cloud import bigquery, storage
+from google.oauth2 import service_account
+
 
 load_dotenv('.env')
 
@@ -30,6 +33,10 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 templates = Jinja2Templates(directory="templates")
+
+key_path = "ck-eams-9260619158c0.json"
+bigquery_client = bigquery.Client.from_service_account_json(key_path)
+storage_client = storage.Client.from_service_account_json(key_path)
 
 @app.get("/")
 def read_root(request: Request):
@@ -80,7 +87,7 @@ def index_page(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/upload")
-async def upload_nib_scan(request: Request, scan: UploadFile):
+async def upload_nib_scan(request: Request, name: str = Form(...), age: str = Form(...), gender: str = Form(...),scan: UploadFile= File(...)):
     if scan.filename != '':
         # Check if the file extension is appropriate for NiB scans (e.g., .nii)
         # allowed_extensions = {'.nii', '.nii.gz', '.hdr', '.img'}
@@ -112,6 +119,24 @@ async def upload_nib_scan(request: Request, scan: UploadFile):
 
         prediction = test_pnemonia(scan_path)
         prediction=round(prediction*100, 2)
+
+        print("Updating BigQuery")
+
+        table_id = 'ck-eams.eams24.PatientDetails'
+        rows_to_insert = []
+        row_dict = {
+            "patient_name": name,
+            "age": age,
+            "gender": gender,
+            "abnormality":prediction,
+        }
+        rows_to_insert = [row_dict]
+
+        # Insert the rows into the BigQuery table
+        errors = errors = bigquery_client.insert_rows_json(table_id, rows_to_insert)
+        if errors:
+            raise Exception(f'Error inserting rows into BigQuery: {errors}')
+
         return templates.TemplateResponse("index.html", {"request": request, "message": "CT Scan uploaded and processed successfully.", "Pred": prediction})
        
     return templates.TemplateResponse("index.html", {"request": request, "error": "No file uploaded."})
